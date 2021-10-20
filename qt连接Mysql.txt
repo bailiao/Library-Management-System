@@ -1,0 +1,108 @@
+流程：
+1、安装Qt
+
+2、配置path环境变量
+
+3、编译mysql驱动（用Qt打开mysql.pro文件）
+
+第6行左右，在QMAKE_USE += mysql 前面加上# ，变为
+#QMAKE_USE += mysql 
+
+win32:LIBS += -LD:/mysql/mysql-8.0.19-winx64/lib -llibmysql 
+
+INCLUDEPATH += D:/mysql/mysql-8.0.19-winx64/include
+
+DEPENDPATH += D:/mysql/mysql-8.0.19-winx64/include
+
+（注意修改斜杠方向，复制下来的路径是向右的，编译需要向左的）
+
+
+
+4、拷贝文件
+
+生成的qsqlmysql.dll   qsqlmysqld.dll 拷贝至Qt所对应mingw的sqldrivers中
+
+*在这里我只生成了qsqlmysql.dll 和 qsqlmysql.dll.debug，
+我都拷过去了，测试可以连接成功
+记得网上一种说法是一个用来debug一个用来release
+都是用来编译的，问题应该不大能编译就行
+
+拷贝mysql的动态库（博文中是提供下载，其实在mysql中有）
+将 mysql/lib 中的 libmysql.dll （动态库）拷贝至
+Qt所对应编译器的bin目录下
+
+
+5、测试连接
+新建一个Qt项目
+记得选择mingw_64的编译器，会在新建时提示你选。其他默认就好
+在.pro文件头部添加
+QT       += core gui sql
+QT       += sql
+
+修改main.cpp
+这里是main.cpp中的所有头文件，因为查阅的资料比较多，添加的也比较多，就不进行筛选了，大家直接拷贝吧
+#include "mainwindow.h"
+#include <QApplication>
+#include <QLabel>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QSlider>
+#include <QSpinBox>
+#include <QSqlError>
+#include <QDebug>
+#include <QSqlDatabase>
+#include <QMessageBox>
+#include <QTextStream>
+#include <stdio.h>
+
+在预编译（#include）结束后，主函数开始前，定义一个连接函数：
+
+（注意横线部分是你自己的数据库的主机名，数据库名，用户名以及密码。
+如何使用mysql创建数据库，创建用户，查看密码主机名等，大家可以自己上网找操作代码，我也是用一次找一次...）
+
+
+bool createConnection()
+{
+    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
+    db.setHostName("_____");
+    db.setDatabaseName("_____");
+    db.setUserName("_____");
+    db.setPassword("_____");
+    bool ok = db.open();
+    if (ok)
+    {
+        qDebug() << "连接成功" ;
+    }
+    else
+    {
+         qDebug() << "连接失败" ;
+    }
+}
+
+然后在主函数中调用连接函数，下面是主函数代码：
+int main(int argc, char *argv[])
+{
+    QApplication a(argc, argv);
+    if (!createConnection())
+        return 1;
+    return a.exec();
+}
+
+Ctrl + r 运行，成功后在下方的结果输出框中有小字提示“连接成功”。
+
+
+原理总结：划重点！！！！！！ 
+
+1、Qt中没有自带的mysql数据库插件 qsqlmysql.dl 与 qsqlmysql.dlld，需要到自带的mysql.pro中自行编译。
+2、需要把mysql动态库拷贝至Qt编译器的bin目录下
+
+
+推荐博文：
+操作流程：
+https://blog.csdn.net/dengjin20104042056/article/details/94129925
+
+原理介绍：
+https://www.cnblogs.com/lpxblog/p/6698255.html
+
+出现错误WSPStartup end: 0, protocol=6：
+https://www.cnblogs.com/judes/p/10505230.html

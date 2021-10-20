@@ -1,0 +1,24 @@
+create table Book(Bid varchar(20),BookName varchar(20), Publisher varchar(30), Author varchar(30), Year int, Total int, Storage int, UpdateTime date, primary key (Bid));
+create table User(Uid varchar(20), Password varchar(20), Type varchar(10), primary key (Uid));
+create table Card(CardID varchar(20), Uid varchar(20), Name varchar(20), Department varchar(20), Phone varchar(20), UpdateTime date, primary key (CardID), foreign key (Uid) references User (Uid));
+create table Record(CardID varchar(20), Bid varchar(20), BorrowTime date, ReturnTime date, primary key (Bid), foreign key (CardID) references Card (CardID), foreign key (Bid) references Book (Bid));
+
+Insert Book values('CS0001', '数据库系统概念', '机械工业出版社','Abraham Silberschatz,etc.', '2012', '5', '2', '2021-5-20');
+Insert Book values('CS0002', '算法导论', '机械工业出版社','Thomas H.Cormen,etc.', '2013', '4', '2', '2021-5-20');
+Insert Book values('CS0003', '计算机组成与设计', '机械工业出版社','David A. Patterson,etc.', '2015', '3', '1', '2021-5-20');
+Insert Book values('CS0004', '深入理解计算机系统', '电子工业出版社','William Stallings', '2016', '7', '4', '2021-5-20');
+Insert Book values('SE0001', '密码编码学与网络安全', '机械工业出版社','Abraham Silberschatz,etc.', '2017', '6', '3', '2021-5-20');
+Insert Book values('SE0002', '软件工程-实践者的研究方法', '机械工业出版社','Roger S. Pressman,etc.', '2016', '5', '1', '2021-5-20');
+Insert Book values('SE0003', '软件安全实现-安全编程技术', '清华大学出版社','郭克华', '2015', '3', '1', '2021-5-20');
+
+Insert User values('3190105008', '12345', 'User');
+Insert User values('123', '123', 'Root');
+
+Insert Card values('C00001', '3190105008', '洪常凯', 'Comp.Sci', '18976241363', '2021-5-23');
+
+select Bid as 图书编号, BookName as 书名, Publisher as 出版社, Author as 作者, Record.CardID as 卡号, Uid as 用户名, Phone as 联系方式, BorrowTime as 借出时间, ReturnTime as 应还时间 from (Book natural join Record) inner join Card on (Card.CardID = Record.CardID);
+
+3190105008
+12345
+CS0001
+C00001
